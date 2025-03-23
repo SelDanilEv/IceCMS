@@ -8,6 +8,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ResourcesService } from './resources.service';
+import { CreateUpdateResourceDto } from './dto/CreateUpdateResourceDto';
 
 @Controller('resources')
 export class ResourcesController {
@@ -18,23 +19,26 @@ export class ResourcesController {
     return this.resourcesService.findAll();
   }
 
-  @Get(':name')
-  findOne(@Param('name') name: string) {
-    return this.resourcesService.findOne(name);
-  }
+  // @Get(':name')
+  // findOne(@Param('name') name: string) {
+  //   return this.resourcesService.findOne(name);
+  // }
 
   @Post()
-  create(@Body() resourceDto) {
+  create(@Body() resourceDto: CreateUpdateResourceDto) {
     return this.resourcesService.create(resourceDto);
   }
 
-  @Put(':name')
-  update(@Param('name') name: string, @Body() resourceDto) {
-    return this.resourcesService.update(name, resourceDto);
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() resourceDto: CreateUpdateResourceDto,
+  ) {
+    return this.resourcesService.update(id, resourceDto);
   }
 
-  @Delete(':name')
-  delete(@Param('name') name: string) {
-    return this.resourcesService.delete(name);
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.resourcesService.delete(id);
   }
 }

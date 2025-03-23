@@ -15,8 +15,10 @@ import { PagesService } from '../pages/pages.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

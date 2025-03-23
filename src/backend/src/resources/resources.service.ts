@@ -3,6 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Resource } from './schema/resource.schema';
 import { NotFoundException } from '@nestjs/common';
+import { v7 as uuidv7 } from 'uuid';
+import { CreateUpdateResourceDto } from './dto/CreateUpdateResourceDto';
+import { createResourceDto, ResourceDto } from './dto/ResourceDto';
 
 @Injectable()
 export class ResourcesService {
@@ -15,7 +18,9 @@ export class ResourcesService {
   }
 
   async findOne(name: string): Promise<Resource | null> {
-    const existingResource = await this.resourceModel.findOne({ name }).exec();
+    const existingResource = await this.resourceModel
+      .findOne({ id: name })
+      .exec();
 
     if (!existingResource) {
       throw new NotFoundException(`Resource with name "${name}" not found.`);
@@ -24,39 +29,57 @@ export class ResourcesService {
     return existingResource;
   }
 
-  async create(resourceDto): Promise<Resource> {
-    const { name } = resourceDto;
-
-    const existingResource = await this.resourceModel.findOne({ name }).exec();
-    if (existingResource) {
-      throw new NotFoundException(
-        `Resource with name "${name}" already exists.`,
-      );
-    } else {
-      const newResource = new this.resourceModel(resourceDto);
-      return newResource.save();
-    }
-  }
-
-  async update(name: string, resourceDto): Promise<Resource | null> {
-    const existingResource = await this.resourceModel.findOne({ name }).exec();
-
-    if (!existingResource) {
-      throw new NotFoundException(`Resource with name "${name}" not found.`);
-    }
-
-    return this.resourceModel
-      .findOneAndUpdate({ name }, resourceDto, { new: true })
+  async create(resourceDto: CreateUpdateResourceDto): Promise<ResourceDto> {
+    const existingResource = await this.resourceModel
+      .findOne({ id: resourceDto.name })
       .exec();
+
+    if (existingResource)
+      throw new NotFoundException(
+        `Resource with name "${resourceDto.name}" already exists.`,
+      );
+
+    const newResource = new this.resourceModel({
+      _id: uuidv7(),
+      ...resourceDto,
+    });
+
+    const savedResource = await newResource.save();
+
+    return createResourceDto(savedResource);
   }
 
-  async delete(name: string): Promise<any> {
-    const existingResource = await this.resourceModel.findOne({ name }).exec();
+  async update(id: string, resourceDto): Promise<ResourceDto | null> {
+    const existingResource = await this.resourceModel
+      .findOne({ _id: id })
+      .exec();
+
+    console.log('id', id);
 
     if (!existingResource) {
-      throw new NotFoundException(`Resource with name "${name}" not found.`);
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
     }
 
-    return this.resourceModel.findOneAndDelete({ name }).exec();
+    const savedResource = await this.resourceModel
+      .findOneAndUpdate({ _id: id }, resourceDto, { new: true })
+      .exec();
+
+    if (!savedResource) {
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
+    }
+
+    return createResourceDto(savedResource);
+  }
+
+  async delete(id: string): Promise<any> {
+    const existingResource = await this.resourceModel
+      .findOne({ _id: id })
+      .exec();
+
+    if (!existingResource) {
+      throw new NotFoundException(`Resource with name "${id}" not found.`);
+    }
+
+    return this.resourceModel.findOneAndDelete({ _id: id }).exec();
   }
 }
