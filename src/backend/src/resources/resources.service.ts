@@ -17,13 +17,13 @@ export class ResourcesService {
     return this.resourceModel.find().exec();
   }
 
-  async findOne(name: string): Promise<Resource | null> {
+  async findOne(id: string): Promise<Resource | null> {
     const existingResource = await this.resourceModel
-      .findOne({ id: name })
+      .findOne({ id: id })
       .exec();
 
     if (!existingResource) {
-      throw new NotFoundException(`Resource with name "${name}" not found.`);
+      throw new NotFoundException(`Resource with name "${id}" not found.`);
     }
 
     return existingResource;

@@ -1,6 +1,7 @@
 import { Schema, Document } from 'mongoose';
 
 export interface Page extends Document {
+  id: string;
   pageId: string;
   name: string;
   templateId: string;
@@ -11,13 +12,22 @@ export interface Page extends Document {
 
 export const PageSchema = new Schema(
   {
+    _id: { type: String },
     pageId: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true },
-    templateId: { type: Schema.Types.ObjectId, required: true, ref: 'Template' }, // ObjectId вместо String
+    templateId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'Template',
+    }, // ObjectId вместо String
     zones: [
       {
         zoneName: { type: String, required: true },
-        resource: { type: Schema.Types.ObjectId, required: true, ref: 'Resource' }, // ObjectId вместо String
+        resource: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: 'Resource',
+        }, // ObjectId вместо String
       },
     ],
     scripts: [{ type: Schema.Types.ObjectId, ref: 'Resource' }], // ObjectId вместо String
@@ -25,3 +35,9 @@ export const PageSchema = new Schema(
   },
   { timestamps: true },
 );
+
+PageSchema.virtual('id').get(function () {
+  return this._id;
+});
+
+PageSchema.set('toJSON', { virtuals: true });

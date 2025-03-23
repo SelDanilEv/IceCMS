@@ -8,6 +8,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { TemplateService } from './template.service';
+import { CreateUpdateTemplateDto } from './dto/CreateUpdateTemplateDto';
 
 @Controller('template')
 export class TemplateController {
@@ -18,23 +19,26 @@ export class TemplateController {
     return this.templateService.findAll();
   }
 
-  @Get(':name')
-  findOne(@Param('name') name: string) {
-    return this.templateService.findOne(name);
-  }
+  // @Get(':name')
+  // findOne(@Param('name') name: string) {
+  //   return this.templateService.findOne(name);
+  // }
 
   @Post()
-  create(@Body() templateDto) {
+  create(@Body() templateDto: CreateUpdateTemplateDto) {
     return this.templateService.create(templateDto);
   }
 
-  @Put(':name')
-  update(@Param('name') name: string, @Body() templateDto) {
-    return this.templateService.update(name, templateDto);
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() templateDto: CreateUpdateTemplateDto,
+  ) {
+    return this.templateService.update(id, templateDto);
   }
 
-  @Delete(':name')
-  delete(@Param('name') name: string) {
-    return this.templateService.delete(name);
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.templateService.delete(id);
   }
 }

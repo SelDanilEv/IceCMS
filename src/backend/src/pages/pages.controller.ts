@@ -1,40 +1,41 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Put,
-    Delete,
-    Param,
-    Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
 } from '@nestjs/common';
 import { PagesService } from './pages.service';
+import { CreateUpdatePageDto } from './dto/CreateUpdatePageDto';
 
 @Controller('pages')
 export class PagesController {
-    constructor(private readonly pagesService: PagesService) {}
+  constructor(private readonly pagesService: PagesService) {}
 
-    @Get()
-    async findAll() {
-        return this.pagesService.findAll();
-    }
+  @Get()
+  async findAll() {
+    return this.pagesService.findAll();
+  }
 
-    @Get(':pageId')
-    async findOne(@Param('pageId') pageId: string) {
-        return this.pagesService.findOne(pageId);
-    }
+  // @Get(':pageId')
+  // async findOne(@Param('pageId') pageId: string) {
+  //   return this.pagesService.findOne(pageId);
+  // }
 
-    @Post()
-    async create(@Body() createPageDto) {
-        return this.pagesService.create(createPageDto);
-    }
+  @Post()
+  create(@Body() createPageDto: CreateUpdatePageDto) {
+    return this.pagesService.create(createPageDto);
+  }
 
-    @Put(':pageId')
-    async update(@Param('pageId') pageId: string, @Body() updatePageDto) {
-        return this.pagesService.update(pageId, updatePageDto);
-    }
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updatePageDto: CreateUpdatePageDto) {
+    return this.pagesService.update(id, updatePageDto);
+  }
 
-    @Delete(':pageId')
-    async delete(@Param('pageId') pageId: string) {
-        return this.pagesService.delete(pageId);
-    }
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.pagesService.delete(id);
+  }
 }

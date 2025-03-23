@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PageSchema } from './schema/pages.schema';
 import { PagesService } from './pages.service';
 import { PagesController } from './pages.controller';
-import { PageSchema } from './schema/pages.schema';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'Page', schema: PageSchema }])],

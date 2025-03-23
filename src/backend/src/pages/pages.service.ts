@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Page } from './schema/pages.schema';
+import { NotFoundException } from '@nestjs/common';
+import { v7 as uuidv7 } from 'uuid';
+import { CreateUpdatePageDto } from './dto/CreateUpdatePageDto';
+import { createPageDto, PageDto } from './dto/PageDto';
 
 @Injectable()
 export class PagesService {
@@ -14,45 +18,63 @@ export class PagesService {
       .exec();
   }
 
-  async findOne(nameId: string): Promise<Page | null> {
-    const page = await this.pageModel.findOne({ nameId }).exec();
-    if (!page) {
-      throw new NotFoundException(`Page with ID "${nameId}" not found.`);
-    }
-    return page;
-  }
-
-  async create(pageDto): Promise<Page> {
-    const { name } = pageDto;
-    const existingPage = await this.pageModel.findOne({ name }).exec();
-
-    if (existingPage) {
-      throw new NotFoundException(`Page with ID "${name}" already exists.`);
-    }
-
-    const newPage = new this.pageModel(pageDto);
-    return newPage.save();
-  }
-
-  async update(nameId: string, pageDto): Promise<Page | null> {
-    const existingPage = await this.pageModel.findOne({ nameId }).exec();
+  async findOne(id: string): Promise<Page | null> {
+    const existingPage = await this.pageModel.findOne({ id: id }).exec();
 
     if (!existingPage) {
-      throw new NotFoundException(`Page with ID "${nameId}" not found.`);
+      throw new NotFoundException(`Resource with name "${id}" not found.`);
     }
 
-    return this.pageModel
-      .findOneAndUpdate({ nameId }, pageDto, { new: true })
+    return existingPage;
+  }
+
+  async create(pageDto: CreateUpdatePageDto): Promise<PageDto> {
+    const existingPage = await this.pageModel
+      .findOne({ id: pageDto.name })
       .exec();
+
+    if (existingPage)
+      throw new NotFoundException(
+        `Resource with name "${pageDto.name}" already exists.`,
+      );
+
+    const newPage = new this.pageModel({
+      _id: uuidv7(),
+      ...pageDto,
+    });
+
+    const savedPage = await newPage.save();
+
+    return createPageDto(savedPage);
   }
 
-  async delete(nameId: string): Promise<any> {
-    const existingPage = await this.pageModel.findOne({ nameId }).exec();
+  async update(id: string, pageDto): Promise<PageDto | null> {
+    const existingPage = await this.pageModel.findOne({ _id: id }).exec();
+
+    console.log('id', id);
 
     if (!existingPage) {
-      throw new NotFoundException(`Page with ID "${nameId}" not found.`);
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
     }
 
-    return this.pageModel.findOneAndDelete({ nameId }).exec();
+    const savedPage = await this.pageModel
+      .findOneAndUpdate({ _id: id }, pageDto, { new: true })
+      .exec();
+
+    if (!savedPage) {
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
+    }
+
+    return createPageDto(savedPage);
+  }
+
+  async delete(id: string): Promise<any> {
+    const existingPage = await this.pageModel.findOne({ _id: id }).exec();
+
+    if (!existingPage) {
+      throw new NotFoundException(`Resource with name "${id}" not found.`);
+    }
+
+    return this.pageModel.findOneAndDelete({ _id: id }).exec();
   }
 }
