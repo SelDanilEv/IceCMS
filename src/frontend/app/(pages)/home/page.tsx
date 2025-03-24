@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "./services/api";
+import api from "../../services/api";
+import { useParams } from "next/navigation";
 
-export default function Home() {
+export default function HomePage() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -13,10 +14,13 @@ export default function Home() {
     });
   }, []);
 
+  const { slug } = useParams();
+
   return (
     <div>
       <h1>Smart CMS</h1>
       <p>Status: {status}</p>
+      <div>Blog post: {slug}</div>
     </div>
   );
 }
