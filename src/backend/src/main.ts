@@ -4,10 +4,11 @@ import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(CmsModule);
-  const port = parseInt(process.env.PORT || '3000', 10);
+
+  const port = parseInt(process.env.PORT || '3001', 10);
 
   app.enableCors({
-    origin: 'http://localhost:48002', // Замените на ваш фронтенд URL
+    origin: 'http://localhost:3000', // Замените на ваш фронтенд URL
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type,Authorization',
   });

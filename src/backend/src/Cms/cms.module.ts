@@ -17,7 +17,7 @@ import { PagesService } from '../pages/pages.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: ['.env.local', '.env.docker', '.env'],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

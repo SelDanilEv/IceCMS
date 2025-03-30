@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import grapesjs, { Editor } from "grapesjs";
+import grapesjs, { Blocks, Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import baseBlocksPlugin from "grapesjs-blocks-basic";
 
@@ -181,7 +181,7 @@ h1 {
       (m) => !["zone-block", "two-zones", "three-zones"].includes(m.id)
     );
 
-    (allBlocks as any).reset([...zoneBlocks, ...otherBlocks]);
+    (allBlocks as Blocks).reset([...zoneBlocks, ...otherBlocks]);
 
     editor.setComponents(initialHtml);
     editor.setStyle(initialCss);
