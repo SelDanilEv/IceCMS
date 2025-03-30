@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import grapesjs, { Editor } from "grapesjs";
+import grapesjs, { Blocks, Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
-import webpagePlugin from "grapesjs-preset-webpage";
 import baseBlocksPlugin from "grapesjs-blocks-basic";
 
 export default function HomePage() {
@@ -154,7 +153,7 @@ h1{
         ...allBlocks.models.filter((m) => m.id !== "zone-block"),
       ];
 
-      (allBlocks as any).reset(reordered);
+      (allBlocks as Blocks).reset(reordered);
     }
 
     editor.setComponents(initialHtml);
