@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TemplateController } from './template.controller';
-import { TemplateService } from './template.service';
-import { TemplateSchema } from './schema/template.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TemplateSchema } from './schema/template.schema';
+import { TemplateService } from './template.service';
+import { TemplateController } from './template.controller';
 
 @Module({
   imports: [

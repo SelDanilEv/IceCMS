@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import grapesjs, { Blocks, Editor } from "grapesjs";
+import grapesjs, { Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import baseBlocksPlugin from "grapesjs-blocks-basic";
-
 
 export default function HomePage() {
   const editorRef = useRef<Editor | null>(null);
@@ -38,7 +37,7 @@ export default function HomePage() {
   </div>
 </body>
     `;
-    
+
     const initialCss = `
 * {
   box-sizing: border-box;
@@ -76,6 +75,12 @@ h1 {
     const bm = editor.BlockManager;
     const dc = editor.DomComponents;
 
+    // Удаляем стандартные колонки
+    bm.remove('column1');
+    bm.remove('column2');
+    bm.remove('column3');
+
+    // Создаем тип компонента Zone
     dc.addType("zone", {
       isComponent: (el) => el.tagName === "DIV" && el.hasAttribute("zone-name"),
       model: {
@@ -89,6 +94,7 @@ h1 {
             padding: "4px",
             "text-align": "center",
             "border": "1px dashed #ccc",
+            "background-color": "rgba(0,0,0,0.05)"
           },
           components: "[ZONE CONTENT]",
           traits: [
@@ -103,19 +109,30 @@ h1 {
       },
     });
 
+    // Создаем блоки Zone и Zone 2
     bm.add("zone-block", {
       label: "Zone",
       category: "Basic",
       content: {
         type: "zone",
         attributes: { "zone-name": "Zone" },
-        style: { width: "100%", display: "inline-block" }
       },
       attributes: { class: "fa fa-square-o" },
     });
 
+    bm.add("zone-block-2", {
+      label: "Zone 2",
+      category: "Basic",
+      content: {
+        type: "zone",
+        attributes: { "zone-name": "Zone 2" },
+      },
+      attributes: { class: "fa fa-square-o" },
+    });
+
+    // Создаем блок с двумя зонами (аналог двух колонок)
     bm.add("two-zones", {
-      label: "2 Zones",
+      label: "Two Zones",
       category: "Basic",
       content: {
         tagName: "div",
@@ -136,52 +153,23 @@ h1 {
       attributes: { class: "fa fa-columns" },
     });
 
-    bm.add("three-zones", {
-      label: "3 Zones",
-      category: "Basic",
-      content: {
-        tagName: "div",
-        attributes: { class: "gjs-row" },
-        components: [
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone" },
-            style: { width: "33.333%", display: "inline-block" }
-          },
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone 2" },
-            style: { width: "33.333%", display: "inline-block" }
-          },
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone 2" },
-            style: { width: "33.333%", display: "inline-block" }
-          }
-        ]
-      },
-      attributes: { class: "fa fa-columns" },
-    });
-
+    // Удаляем ненужные блоки
     bm.remove("video");
     bm.remove("map");
-    bm.remove('column3-7');
-    // bm.remove('column1');
-    // bm.remove('column2');
-    // bm.remove('column3');
 
+    // Реорганизуем порядок блоков
     const allBlocks = bm.getAll();
     const zoneBlocks = [
       allBlocks.get("zone-block"),
+      allBlocks.get("zone-block-2"),
       allBlocks.get("two-zones"),
-      allBlocks.get("three-zones")
     ].filter(Boolean);
 
     const otherBlocks = allBlocks.models.filter(
-      (m) => !["zone-block", "two-zones", "three-zones"].includes(m.id)
+      (m) => !["zone-block", "zone-block-2", "two-zones"].includes(m.id)
     );
 
-    (allBlocks as Blocks).reset([...zoneBlocks, ...otherBlocks]);
+    (allBlocks as any).reset([...zoneBlocks, ...otherBlocks]);
 
     editor.setComponents(initialHtml);
     editor.setStyle(initialCss);
@@ -218,3 +206,41 @@ h1 {
     </div>
   );
 }
+
+dc.addType("footer-zone", {
+    isComponent: (el) => el.tagName === "FOOTER" && el.hasAttribute("zone-name"),
+    model: {
+      defaults: {
+        tagName: "footer",
+        draggable: true,
+        droppable: false,
+        attributes: { "zone-name": "Footer" },
+        style: {
+          position: "fixed",
+          bottom: "1px",
+          left: "1px",
+          right: "1px",
+          minHeight: "80px",
+          padding: "4px",
+          "text-align": "center",
+          "border": "1px dashed #ccc",
+          "background-color": "rgba(0,0,0,0.05)"
+        },
+        components: "[ZONE CONTENT]",
+        traits: [
+          {
+            type: "text",
+            label: "Footer Text",
+            name: "footer-text",
+            placeholder: "Enter footer text",
+            changeProp: true
+          }
+        ],
+      },
+      updated(property, value) {
+        if (property === 'footer-text') {
+          this.components(value || "Footer Content");
+        }
+      }
+    },
+  });

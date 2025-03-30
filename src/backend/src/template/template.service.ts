@@ -3,6 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Template } from './schema/template.schema';
 import { NotFoundException } from '@nestjs/common';
+import { v7 as uuidv7 } from 'uuid';
+import { CreateUpdateTemplateDto } from './dto/CreateUpdateTemplateDto';
+import { createTemplateDto, TemplateDto } from './dto/TemplateDto';
 
 @Injectable()
 export class TemplateService {
@@ -10,53 +13,73 @@ export class TemplateService {
     @InjectModel('Template') private readonly templateModel: Model<Template>,
   ) {}
 
-  async findAll(): Promise<Template[]> {
+  async findAll(): Promise<TemplateDto[]> {
     return this.templateModel.find().exec();
   }
 
-  async findOne(name: string): Promise<Template | null> {
-    const existingTemplate = await this.templateModel.findOne({ name }).exec();
+  async findOne(id: string): Promise<Template | null> {
+    const existingTemplate = await this.templateModel
+      .findOne({ id: id })
+      .exec();
 
     if (!existingTemplate) {
-      throw new NotFoundException(`Template with name "${name}" not found.`);
+      throw new NotFoundException(`Template with name "${id}" not found.`);
     }
 
     return existingTemplate;
   }
 
-  async create(templateDto): Promise<Template> {
-    const { name } = templateDto;
-
-    const existingTemplate = await this.templateModel.findOne({ name }).exec();
-    if (existingTemplate) {
-      throw new NotFoundException(
-        `Template with name "${name}" already exists.`,
-      );
-    } else {
-      const newTemplate = new this.templateModel(templateDto);
-      return newTemplate.save();
-    }
-  }
-
-  async update(name: string, templateDto): Promise<Template | null> {
-    const existingTemplate = await this.templateModel.findOne({ name }).exec();
-
-    if (!existingTemplate) {
-      throw new NotFoundException(`Template with name "${name}" not found.`);
-    }
-
-    return this.templateModel
-      .findOneAndUpdate({ name }, templateDto, { new: true })
+  async create(templateDto: CreateUpdateTemplateDto): Promise<TemplateDto> {
+    const existingTemplate = await this.templateModel
+      .findOne({ id: templateDto.name })
       .exec();
+
+    if (existingTemplate)
+      throw new NotFoundException(
+        `Resource with name "${templateDto.name}" already exists.`,
+      );
+
+    const newTemplate = new this.templateModel({
+      _id: uuidv7(),
+      ...templateDto,
+    });
+
+    const savedTemplate = await newTemplate.save();
+
+    return createTemplateDto(savedTemplate);
   }
 
-  async delete(name: string): Promise<any> {
-    const existingTemplate = await this.templateModel.findOne({ name }).exec();
+  async update(id: string, templateDto): Promise<TemplateDto | null> {
+    const existingTemplate = await this.templateModel
+      .findOne({ _id: id })
+      .exec();
+
+    console.log('id', id);
 
     if (!existingTemplate) {
-      throw new NotFoundException(`Template with name "${name}" not found.`);
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
     }
 
-    return this.templateModel.findOneAndDelete({ name }).exec();
+    const savedTemplate = await this.templateModel
+      .findOneAndUpdate({ _id: id }, templateDto, { new: true })
+      .exec();
+
+    if (!savedTemplate) {
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
+    }
+
+    return createTemplateDto(savedTemplate);
+  }
+
+  async delete(id: string): Promise<any> {
+    const existingTemplate = await this.templateModel
+      .findOne({ _id: id })
+      .exec();
+
+    if (!existingTemplate) {
+      throw new NotFoundException(`Resource with name "${id}" not found.`);
+    }
+
+    return this.templateModel.findOneAndDelete({ _id: id }).exec();
   }
 }

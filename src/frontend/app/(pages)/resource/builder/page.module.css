@@ -1,0 +1,192 @@
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+    font-weight: 700;
+    color:  rgb(66, 153, 225);
+  }
+  
+  .formContainer {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    background-color: #666;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+  }
+
+  .input::placeholder{
+    color: #aaa;
+  }
+
+  .inputError {
+    border-color: #f56565;
+  }
+  
+  .errorText {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #f56565;
+  }
+  
+  .textarea {
+    min-height: 8rem;
+    resize: vertical;
+  }
+  
+  .fileUploadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .fileUploadButton {
+    display: inline-block;
+    background-color: #4299e1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .fileUploadButton:hover {
+    background-color: #3182ce;
+  }
+  
+  .fileInput {
+    display: none;
+  }
+  
+  .imagePreviewContainer {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .imagePreviewWrapper {
+    position: relative;
+  }
+  
+  .imagePreview {
+    width: 10rem;
+    height: 10rem;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .imageOverlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 0.375rem;
+  }
+  
+  .imagePreviewContainer:hover .imageOverlay {
+    opacity: 1;
+  }
+  
+  .overlayText {
+    color: white;
+    font-size: 0.875rem;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .clearButton {
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    background-color: white;
+  }
+  
+  .clearButton:hover {
+    background-color: #f7fafc;
+  }
+  
+  .saveButton {
+    background-color: #48bb78;
+    color: white;
+    border: none;
+  }
+  
+  .saveButton:hover {
+    background-color: #38a169;
+  }
+  
+  .disabledButton {
+    background-color: #cbd5e0 !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+  }
+  .loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
