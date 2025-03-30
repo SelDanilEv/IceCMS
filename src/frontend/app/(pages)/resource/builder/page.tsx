@@ -11,6 +11,7 @@ export default function ResourceBuilder() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<{name?: string, file?: string}>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const isFormValid = useMemo(() => {
     const isNameValid = name.startsWith('resource_') && name.length > 'resource_'.length;
@@ -73,7 +74,7 @@ export default function ResourceBuilder() {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     setName('');
     setType('Text');
     setTextContent('');
@@ -82,22 +83,51 @@ export default function ResourceBuilder() {
     setErrors({});
   };
 
-  const handleSave = () => {
-    if (!isFormValid) return;
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('type', type);
-    
-    if (type === 'Image' && imageFile) {
-      formData.append('file', imageFile);
-    } else {
-      formData.append('content', textContent);
+  const handleSave = async () => {
+    if (!isFormValid) {
+      alert('Resource not valid');
+      return;
     }
-
-    console.log('Saving:', { name, type, content: type === 'Image' ? imageFile?.name : textContent });
-    alert('Resource saved successfully!');
-  };
+  
+    setIsLoading(true); 
+  
+    try {
+      const checkResponse = await fetch(`http://localhost:48001/resources`);
+      const resources = await checkResponse.json();
+  
+      if (resources.some((res: any) => res.name === name)) {
+        alert('Resource with this name already exists!');
+        setIsLoading(false);
+        return;
+      }
+  
+      const resourceData = {
+        name,
+        type,
+        value: type === 'Image' ? imagePreview : textContent,
+        creater: 1,
+      };
+  
+      const saveResponse = await fetch('http://localhost:48001/resources', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(resourceData),
+      });
+  
+      if (!saveResponse.ok) {
+        throw new Error(`Failed to save resource: ${saveResponse.statusText}`);
+      }
+  
+      alert('Resource saved successfully!');
+    } catch (error) {
+      console.error('Error saving resource:', error);
+      alert('Failed to save resource');
+    } finally {
+      setIsLoading(false); 
+    }
+  };  
 
   return (
     <div className={styles.container}>
@@ -198,9 +228,13 @@ export default function ResourceBuilder() {
           <button
             onClick={handleSave}
             className={`${styles.button} ${styles.saveButton} ${!isFormValid ? styles.disabledButton : ''}`}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
           >
-            Save
+            {isLoading ? (
+              <span className={styles.loader}></span> 
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
       </div>
