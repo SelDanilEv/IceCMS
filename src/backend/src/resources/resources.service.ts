@@ -17,13 +17,13 @@ export class ResourcesService {
     return this.resourceModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Resource | null> {
+  async findOne(id: string): Promise<Resource> {
     const existingResource = await this.resourceModel
-      .findOne({ id: id })
+      .findOne({ id })
       .exec();
 
     if (!existingResource) {
-      throw new NotFoundException(`Resource with name "${id}" not found.`);
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
     }
 
     return existingResource;
@@ -31,13 +31,14 @@ export class ResourcesService {
 
   async create(resourceDto: CreateUpdateResourceDto): Promise<ResourceDto> {
     const existingResource = await this.resourceModel
-      .findOne({ id: resourceDto.name })
+      .findOne({ name: resourceDto.name })
       .exec();
 
-    if (existingResource)
+    if (existingResource) {
       throw new NotFoundException(
         `Resource with name "${resourceDto.name}" already exists.`,
       );
+    }
 
     const newResource = new this.resourceModel({
       _id: uuidv7(),
@@ -45,16 +46,13 @@ export class ResourcesService {
     });
 
     const savedResource = await newResource.save();
-
     return createResourceDto(savedResource);
   }
 
-  async update(id: string, resourceDto): Promise<ResourceDto | null> {
+  async update(id: string, resourceDto: CreateUpdateResourceDto): Promise<ResourceDto> {
     const existingResource = await this.resourceModel
       .findOne({ _id: id })
       .exec();
-
-    console.log('id', id);
 
     if (!existingResource) {
       throw new NotFoundException(`Resource with id "${id}" not found.`);
@@ -71,15 +69,15 @@ export class ResourcesService {
     return createResourceDto(savedResource);
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string): Promise<void> {
     const existingResource = await this.resourceModel
       .findOne({ _id: id })
       .exec();
 
     if (!existingResource) {
-      throw new NotFoundException(`Resource with name "${id}" not found.`);
+      throw new NotFoundException(`Resource with id "${id}" not found.`);
     }
 
-    return this.resourceModel.findOneAndDelete({ _id: id }).exec();
+    await this.resourceModel.findOneAndDelete({ _id: id }).exec();
   }
 }

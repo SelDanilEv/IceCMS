@@ -9,23 +9,24 @@ import {
 } from '@nestjs/common';
 import { TemplateService } from './template.service';
 import { CreateUpdateTemplateDto } from './dto/CreateUpdateTemplateDto';
+import { TemplateDto } from './dto/TemplateDto';
 
 @Controller('template')
 export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
 
   @Get()
-  findAll() {
+  findAll():Promise<TemplateDto[]> {
     return this.templateService.findAll();
   }
 
-  // @Get(':name')
-  // findOne(@Param('name') name: string) {
-  //   return this.templateService.findOne(name);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<TemplateDto> {
+    return this.templateService.findOne(id);
+  }
 
   @Post()
-  create(@Body() templateDto: CreateUpdateTemplateDto) {
+  create(@Body() templateDto: CreateUpdateTemplateDto):Promise<TemplateDto> {
     return this.templateService.create(templateDto);
   }
 
@@ -33,12 +34,12 @@ export class TemplateController {
   update(
     @Param('id') id: string,
     @Body() templateDto: CreateUpdateTemplateDto,
-  ) {
+  ) :Promise<TemplateDto>{
     return this.templateService.update(id, templateDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  delete(@Param('id') id: string):Promise<void> {
     return this.templateService.delete(id);
   }
 }

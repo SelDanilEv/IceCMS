@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common';
 import { PagesService } from './pages.service';
 import { CreateUpdatePageDto } from './dto/CreateUpdatePageDto';
+import { PageDto } from './dto/PageDto';
 
 @Controller('pages')
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<PageDto[]> {
     return this.pagesService.findAll();
   }
 
@@ -25,17 +26,17 @@ export class PagesController {
   // }
 
   @Post()
-  create(@Body() createPageDto: CreateUpdatePageDto) {
+  create(@Body() createPageDto: CreateUpdatePageDto): Promise<PageDto> {
     return this.pagesService.create(createPageDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePageDto: CreateUpdatePageDto) {
+  async update(@Param('id') id: string, @Body() updatePageDto: CreateUpdatePageDto): Promise<PageDto|null> {
     return this.pagesService.update(id, updatePageDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.pagesService.delete(id);
+  async delete(@Param('id') id: string): Promise<void> {
+    await this.pagesService.delete(id);
   }
 }
