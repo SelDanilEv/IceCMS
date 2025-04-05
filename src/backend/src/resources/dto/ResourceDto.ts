@@ -1,3 +1,5 @@
+import { Resource } from "../schema/resource.schema";
+
 export interface ResourceDto {
   id: string;
   name: string;
@@ -6,7 +8,7 @@ export interface ResourceDto {
   creater: number;
 }
 
-export function createResourceDto(jsonSource: any): ResourceDto {
+export function createResourceDto(jsonSource: Resource): ResourceDto {
   return {
     id: jsonSource.id,
     name: jsonSource.name,

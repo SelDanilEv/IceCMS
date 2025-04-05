@@ -8,7 +8,7 @@ export interface Resource extends Document {
   creater: number;
 }
 
-export const ResourceSchema = new Schema(
+export const ResourceSchema = new Schema<Resource>(
   {
     _id: { type: String },
     name: { type: String, required: true },
@@ -19,7 +19,7 @@ export const ResourceSchema = new Schema(
   { timestamps: true },
 );
 
-ResourceSchema.virtual('id').get(function () {
+ResourceSchema.virtual('id').get(function (this: Resource) {
   return this._id;
 });
 

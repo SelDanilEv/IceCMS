@@ -9,36 +9,37 @@ import {
 } from '@nestjs/common';
 import { ResourcesService } from './resources.service';
 import { CreateUpdateResourceDto } from './dto/CreateUpdateResourceDto';
+import { ResourceDto } from './dto/ResourceDto';
 
 @Controller('resources')
 export class ResourcesController {
   constructor(private readonly resourcesService: ResourcesService) {}
 
   @Get()
-  findAll() {
+  findAll(): Promise<ResourceDto[]> {
     return this.resourcesService.findAll();
   }
 
-  // @Get(':name')
-  // findOne(@Param('name') name: string) {
-  //   return this.resourcesService.findOne(name);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<ResourceDto> {
+    return this.resourcesService.findOne(id);
+  }
 
   @Post()
-  create(@Body() resourceDto: CreateUpdateResourceDto) {
+  create(@Body() resourceDto: CreateUpdateResourceDto):Promise<ResourceDto> {
     return this.resourcesService.create(resourceDto);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() resourceDto: CreateUpdateResourceDto,
-  ) {
+  ): Promise<ResourceDto> {
     return this.resourcesService.update(id, resourceDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.resourcesService.delete(id);
+  async delete(@Param('id') id: string): Promise<void> {
+    await this.resourcesService.delete(id);
   }
 }

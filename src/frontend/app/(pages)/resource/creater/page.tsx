@@ -1,10 +1,13 @@
 "use client";
 import { useState, ChangeEvent, useMemo } from 'react';
 import styles from './page.module.css';
+import { resourceApi } from '@/app/services/api';
+import Image from 'next/image';
+import { ResourceData } from '@/app/types/resourceTypes';
 
 type ResourceType = 'Text' | 'Image' | 'Script';
 
-export default function ResourceBuilder() {
+export default function ResourceCreater() {
   const [name, setName] = useState('');
   const [type, setType] = useState<ResourceType>('Text');
   const [textContent, setTextContent] = useState('');
@@ -92,35 +95,25 @@ export default function ResourceBuilder() {
     setIsLoading(true); 
   
     try {
-      const checkResponse = await fetch(`http://localhost:48001/resources`);
-      const resources = await checkResponse.json();
+      const {data: resources} = await resourceApi.getAll();
   
-      if (resources.some((res: any) => res.name === name)) {
+      if (resources.some((res: {name:string}) => res.name === name)) {
         alert('Resource with this name already exists!');
         setIsLoading(false);
         return;
       }
   
-      const resourceData = {
-        name,
-        type,
-        value: type === 'Image' ? imagePreview : textContent,
+      const resData: ResourceData = {
+        name: name,
+        type: type,
+        value: type === 'Image' ? imagePreview || '' : textContent,
         creater: 1,
       };
   
-      const saveResponse = await fetch('http://localhost:48001/resources', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(resourceData),
-      });
-  
-      if (!saveResponse.ok) {
-        throw new Error(`Failed to save resource: ${saveResponse.statusText}`);
-      }
+      await resourceApi.create(resData);
   
       alert('Resource saved successfully!');
+      handleClear();
     } catch (error) {
       console.error('Error saving resource:', error);
       alert('Failed to save resource');
@@ -159,7 +152,7 @@ export default function ResourceBuilder() {
             onChange={handleTypeChange}
             className={styles.input}
           >
-            <option value="Text">Text</option>
+            <option value="Text">Text / HTML / CSS</option>
             <option value="Image">Image</option>
             <option value="Script">Script</option>
           </select>
@@ -197,9 +190,17 @@ export default function ResourceBuilder() {
               ) : (
                 <label className={styles.imagePreviewContainer}>
                   <div className={styles.imagePreviewWrapper}>
-                    <img src={imagePreview} 
+                    {/* <img src={imagePreview} 
                       alt="Preview" 
                       className={styles.imagePreview}
+                    /> */}
+                    <Image
+                      src={imagePreview || ''} 
+                      alt="Preview"
+                      width={500} 
+                      height={300}
+                      className={styles.imagePreview}
+                      priority={false} 
                     />
                     <div className={styles.imageOverlay}>
                       <span className={styles.overlayText}>Click to change image</span>

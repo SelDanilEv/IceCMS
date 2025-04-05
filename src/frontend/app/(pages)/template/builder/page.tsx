@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import grapesjs, { Blocks, Editor } from "grapesjs";
+import grapesjs, { /*Blocks,*/ Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import baseBlocksPlugin from "grapesjs-blocks-basic";
-
+import { templateApi } from "@/app/services/api";
+import { TemplateData } from "@/app/types/templateTypes";
 
 export default function HomePage() {
   const editorRef = useRef<Editor | null>(null);
@@ -114,74 +115,15 @@ h1 {
       attributes: { class: "fa fa-square-o" },
     });
 
-    bm.add("two-zones", {
-      label: "2 Zones",
-      category: "Basic",
-      content: {
-        tagName: "div",
-        attributes: { class: "gjs-row" },
-        components: [
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone" },
-            style: { width: "50%", display: "inline-block" }
-          },
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone 2" },
-            style: { width: "50%", display: "inline-block" }
-          }
-        ]
-      },
-      attributes: { class: "fa fa-columns" },
-    });
-
-    bm.add("three-zones", {
-      label: "3 Zones",
-      category: "Basic",
-      content: {
-        tagName: "div",
-        attributes: { class: "gjs-row" },
-        components: [
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone" },
-            style: { width: "33.333%", display: "inline-block" }
-          },
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone 2" },
-            style: { width: "33.333%", display: "inline-block" }
-          },
-          {
-            type: "zone",
-            attributes: { "zone-name": "Zone 2" },
-            style: { width: "33.333%", display: "inline-block" }
-          }
-        ]
-      },
-      attributes: { class: "fa fa-columns" },
-    });
-
     bm.remove("video");
     bm.remove("map");
-    bm.remove('column3-7');
-    // bm.remove('column1');
-    // bm.remove('column2');
-    // bm.remove('column3');
 
-    const allBlocks = bm.getAll();
-    const zoneBlocks = [
-      allBlocks.get("zone-block"),
-      allBlocks.get("two-zones"),
-      allBlocks.get("three-zones")
-    ].filter(Boolean);
-
-    const otherBlocks = allBlocks.models.filter(
-      (m) => !["zone-block", "two-zones", "three-zones"].includes(m.id)
-    );
-
-    (allBlocks as Blocks).reset([...zoneBlocks, ...otherBlocks]);
+    // const allBlocks = bm.getAll();
+    // const zoneBlocks = [
+    //   allBlocks.get("zone-block"),
+    //   allBlocks.get("two-zones"),
+    //   allBlocks.get("three-zones")
+    // ].filter(Boolean);
 
     editor.setComponents(initialHtml);
     editor.setStyle(initialCss);
@@ -192,15 +134,46 @@ h1 {
   const handleExport = () => {
     const html = editorRef.current?.getHtml();
     const css = editorRef.current?.getCss();
+    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html || "", "text/html");
+    
+    // Собираем все элементы с атрибутом zone-name
+    const zoneElements = doc.querySelectorAll("[zone-name]");
+    const zones: Record<string, string> = {};
+    
+    zoneElements.forEach((el) => {
+      const zoneName = el.getAttribute("zone-name");
+      if (zoneName) {
+        zones[zoneName] = "resource";
+      }
+    });
+    
+    const temDate: TemplateData = {
+      name: "Template 1",
+      templateHtml: html || "",
+      templateCss: css || "",
+      zones: zones,
+      creater: 1,
+    };
+    
+    templateApi.create(temDate)
+    // const {data: templates} = templateApi.getAll();
 
-    fetch("/api/save-template", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ html, css }),
-    })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.error(err));
+    // if (templates.some((tem: {name:string}) => tem.name === name)) {
+    //   alert('Resource with this name already exists!');
+    //   return;
+    // }
+
+
+    // fetch("/api/save-template", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ html, css }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => console.log(data))
+    //   .catch((err) => console.error(err));
   };
 
   return (

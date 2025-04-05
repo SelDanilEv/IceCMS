@@ -44,7 +44,6 @@ export class PagesService {
     });
 
     const savedPage = await newPage.save();
-
     return createPageDto(savedPage);
   }
 
@@ -68,13 +67,13 @@ export class PagesService {
     return createPageDto(savedPage);
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string): Promise<void> {
     const existingPage = await this.pageModel.findOne({ _id: id }).exec();
 
     if (!existingPage) {
       throw new NotFoundException(`Resource with name "${id}" not found.`);
     }
 
-    return this.pageModel.findOneAndDelete({ _id: id }).exec();
+    await this.pageModel.findOneAndDelete({ _id: id }).exec();
   }
 }
